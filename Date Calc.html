@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IRCTC Booking Calculator</title>
+<style>
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+    }
+    header, footer {
+        background-color: #004080;
+        color: white;
+        text-align: center;
+        padding: 1rem;
+    }
+    main {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        text-align: center;
+    }
+    .input-row {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin-top: 1rem;
+    }
+    input[type="date"], button {
+        padding: 0.7rem;
+        font-size: 1rem;
+        width: 200px;
+    }
+    .hidden {
+        display: none;
+    }
+    .result-box {
+        text-align: left;
+        background: #f9f9f9;
+        padding: 1rem;
+        border-radius: 8px;
+        width: 90%;
+        max-width: 500px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        margin: 1rem auto;
+    }
+    ul {
+        padding-left: 20px;
+    }
+    @media (max-width: 600px) {
+        .input-row {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        input[type="date"], button {
+            width: 100%;
+        }
+    }
+</style>
+</head>
+<body>
+<header>
+    <h1>IRCTC Booking Date Calculator</h1>
+</header>
+
+<main>
+    <!-- Page 1 -->
+    <div id="page1">
+        <h2>Select Your Journey Date</h2>
+        <div class="input-row">
+            <input type="date" id="journeyDate">
+            <button id="checkBtn">Check</button>
+        </div>
+    </div>
+
+    <!-- Page 2 -->
+    <div id="page2" class="hidden">
+        <h2>Booking Details</h2>
+        <div class="result-box" id="resultBox"></div>
+        <button id="backBtn">Back</button>
+    </div>
+</main>
+
+<footer>
+    <p>IRCTC Booking Calculator © 2025</p>
+</footer>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const journeyDateInput = document.getElementById("journeyDate");
+    const checkBtn = document.getElementById("checkBtn");
+    const backBtn = document.getElementById("backBtn");
+    const page1 = document.getElementById("page1");
+    const page2 = document.getElementById("page2");
+    const resultBox = document.getElementById("resultBox");
+
+    // Set min date to today
+    const today = new Date().toISOString().split("T")[0];
+    journeyDateInput.setAttribute("min", today);
+
+    checkBtn.addEventListener("click", () => {
+        const journeyDateValue = journeyDateInput.value;
+        if (!journeyDateValue) {
+            alert("Please select a journey date.");
+            return;
+        }
+
+        const journeyDate = new Date(journeyDateValue);
+        const bookingOpenDate = new Date(journeyDate);
+        bookingOpenDate.setDate(bookingOpenDate.getDate() - 60);
+
+        // Prepare result text
+        let html = `<p><strong>Journey Date:</strong> ${formatDate(journeyDate)}</p>`;
+        html += `<p><strong>Booking Opens:</strong> ${formatDate(bookingOpenDate)}</p>`;
+        html += `<hr><p><strong>Other Dates:</strong></p><ul>`;
+        
+        for (let i = 3; i >= 1; i--) {
+            const prevJourney = new Date(journeyDate);
+            prevJourney.setDate(prevJourney.getDate() - i);
+            const prevBooking = new Date(prevJourney);
+            prevBooking.setDate(prevBooking.getDate() - 60);
+            html += `<li>Train Starts on ${formatDate(prevJourney)} → Booking opens on ${formatDate(prevBooking)}</li>`;
+        }
+        html += `</ul>`;
+
+        resultBox.innerHTML = html;
+
+        // Switch pages
+        page1.classList.add("hidden");
+        page2.classList.remove("hidden");
+    });
+
+    backBtn.addEventListener("click", () => {
+        page2.classList.add("hidden");
+        page1.classList.remove("hidden");
+    });
+
+    function formatDate(date) {
+        const options = { day: '2-digit', month: 'short', year: 'numeric' };
+        return date.toLocaleDateString('en-GB', options);
+    }
+});
+</script>
+</body>
+</html>
